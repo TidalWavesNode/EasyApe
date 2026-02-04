@@ -1,0 +1,105 @@
+app:
+  mode: dry                 # dry = never runs btcli; live = runs btcli after confirmation
+  timezone: America/Chicago
+  data_dir: ./data
+  log_file: ./data/bot.log.jsonl
+  require_confirmation: true
+  confirmation_expires_minutes: 5
+  allow_groups: false
+
+  # Safety defaults (you can change these)
+  confirm_over_tao: 1.0         # confirmation required only if require_confirmation is true
+  confirm_over_alpha: 200.0     # confirmation required only if require_confirmation is true
+  rate_limit_per_minute: 3
+  rate_limit_per_hour: 30
+
+  # Guardrails (stake in TAO, unstake in Alpha)
+  max_tao_per_tx: 5.0
+  daily_max_tao: 20.0
+  max_alpha_per_tx: 500.0
+  daily_max_alpha: 2000.0
+
+auth:
+  allow:
+    telegram_user_ids: []
+    discord_user_ids: []
+licensing:
+  # Customers do NOT need to touch this. EasyApe will call the license server automatically.
+  # Override only if you're developing/testing with your own server.
+  server_url: "env:EASYAPE_LICENSE_SERVER_URL"   # default: https://license.easyape.io
+  grace_hours: 24
+
+btcli:
+  path: "env:BTCLI_PATH"
+  wallets_path: "env:BT_WALLETS_DIR"
+  common_args: ["--subtensor.network", "finney"]
+
+  default_wallet: main
+
+  wallets:
+    main:
+      wallet_name: "mycoldkey"
+      password: "env:EASYAPE_WALLET_PASSWORD"
+
+      # Optional turbo mode: enables amount-only stake/unstake
+      # Example: stake 0.10 (uses default wallet + default_netuid)
+      default_netuid: 31
+
+      # Defaults used when validator is omitted
+      validator_all: "taostats"
+      validator_by_netuid:
+        31: "taostats"
+
+      # Legacy fallback (optional)
+      default_validator: ""
+
+    alt:
+      wallet_name: "anothercoldkey"
+      password: "env:ALT_WALLET_PASS"
+      default_netuid: null
+      validator_all: ""
+      validator_by_netuid: {}
+      default_validator: ""
+
+  staking:
+    safe: true
+    tolerance: 0.10
+    no_partial: true
+
+defaults:
+  # Global defaults (used when validator omitted AND wallet has no overrides)
+  validator_all: "taostats"
+  validator_by_netuid: {}
+
+validators:
+  cache_ttl_minutes: 360
+
+  sources:
+    - type: taostats
+      api_url: "https://api.taostats.io/api/dtao/validator/latest/v1"
+      api_key: "env:TAOSTATS_API_KEY"
+
+    - type: http_json
+      url: "env:VALIDATOR_REGISTRY_URL"
+      headers: {}
+      data_path: ""
+      name_field: "name"
+      hotkey_field: "hotkey"
+
+    - type: file_json
+      path: "./validators.local.json"
+      data_path: ""
+      name_field: "name"
+      hotkey_field: "hotkey"
+
+  delegates_fallback_url: "https://raw.githubusercontent.com/opentensor/bittensor-delegates/main/public/delegates.json"
+
+channels:
+  telegram:
+    enabled: true
+    token: "env:TELEGRAM_BOT_TOKEN"
+
+  discord:
+    enabled: true
+    token: "env:DISCORD_BOT_TOKEN"
+    guild_ids: []

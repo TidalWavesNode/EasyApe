@@ -1,0 +1,43 @@
+EASYAPE COMMERCIAL LICENSE (SOURCE-AVAILABLE, NOT OPEN SOURCE)
+Version 1.0 — Effective 2026-02-04
+Copyright (c) EasyApe. All rights reserved.
+
+IMPORTANT: This is a commercial, source-available license. It is NOT an open-source license.
+
+1. Grant of License
+Subject to payment of applicable fees and continued compliance with this license, you are granted a
+non-exclusive, non-transferable, revocable license to install and run EasyApe ("Software") for your
+internal use as an operator deployment.
+
+2. Trial
+A time-limited trial may be made available. Trial start and expiry are determined by the EasyApe
+license server. After trial expiry, staking/unstaking functionality is disabled unless a valid
+subscription license is active.
+
+3. Permitted Configuration
+You may modify configuration files provided by the Software (including config.yaml and .env) solely
+to set wallet profiles, validator sources, allow-lists, and runtime settings.
+
+4. Restrictions
+You may not:
+(a) modify, patch, translate, adapt, or create derivative works of the Software (excluding configuration as permitted in Section 3);
+(b) remove, bypass, disable, or tamper with license checks or any technical restrictions;
+(c) distribute, sublicense, sell, rent, lease, or otherwise make the Software available to third parties;
+(d) offer the Software as a hosted service or managed service for others;
+(e) use the Software to perform transfers or any non-stake/unstake transaction type.
+
+5. Ownership
+The Software is licensed, not sold. EasyApe retains all right, title, and interest in and to the Software.
+
+6. Termination
+This license terminates automatically if you violate any term. Upon termination you must cease use.
+
+7. Disclaimer
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. YOU ASSUME ALL RISK.
+
+8. Limitation of Liability
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, EASYAPE SHALL NOT BE LIABLE FOR ANY INDIRECT,
+INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR EXEMPLARY DAMAGES.
+
+9. Contact
+Licensing/support: [ADD_EMAIL_OR_URL]
