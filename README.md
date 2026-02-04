@@ -1,6 +1,6 @@
-<img width="1792" height="576" alt="EasyApe" src="https://github.com/user-attachments/assets/2780939d-94b4-4558-8169-87e85fe8b1dd" />
+<img width="1792" height="576" alt="generated-image (2)" src="https://github.com/user-attachments/assets/d0d2c2c1-6282-42ff-af68-619846279b04" />
 
-# EasyApe 🦍 | text to stake (T2S)
+## EasyApe 🦍 | text to stake (T2S)
 
 A minimal **chat → btcli** bot for **staking / unstaking** on Bittensor from:
 
