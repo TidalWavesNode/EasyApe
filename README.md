@@ -6,6 +6,7 @@ A minimal **chat → btcli** bot for **staking / unstaking** on Bittensor from:
 
 - Telegram (DM)
 - Discord (slash commands)
+- Signal (eventually)
 
 ✅ **Never transfers:** stake/unstake + read-only commands (**inventory**, **balance**) only  
 ✅ **Non-custodial:** no seed phrases, no private keys  
