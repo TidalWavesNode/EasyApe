@@ -125,6 +125,7 @@ while true; do
     VALIDATOR_INPUT="${VALIDATOR_INPUT:-$DEFAULT_VALIDATOR}"
 
     if [[ "$VALIDATOR_INPUT" =~ ^[1-9A-HJ-NP-Za-km-z]{47,48}$ ]]; then
+        VALIDATOR="$VALIDATOR_INPUT"   # ✅ explicit final assignment
         break
     fi
 
@@ -137,7 +138,7 @@ done
 
 echo
 success "Validator selected:"
-echo "   $VALIDATOR_INPUT"
+echo "   $VALIDATOR"
 
 # ─────────────────────────────────────────────
 
