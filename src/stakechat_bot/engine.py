@@ -641,49 +641,42 @@ class Engine:
                 lines.append(f"  PnL:   {color} `{pnl:+.4f} τ`  |  ROI: `{roi:+.2f}%`")
             lines.append("")
 
-        realized = sum(t.get("tao_received", 0.0) for t in history if t.get("type") == "unstake")
+        # EDIT 1 (only): realized uses pnl (true profit/loss), not tao_received (gross proceeds)
+        realized = sum(t.get("pnl", 0.0) for t in history if t.get("type") == "unstake")
+
         total_pnl = unrealized + realized
-        port_roi = total_pnl / total_cost * 100 if total_cost else 0.0
+
+        # EDIT 2 (only): portfolio ROI uses lifetime capital deployed, not current open cost basis
+        capital_deployed = sum(
+            t.get("tao_spent", 0.0)
+            for t in history
+            if t.get("type") == "stake"
+        )
+        port_roi = total_pnl / capital_deployed * 100 if capital_deployed else 0.0
+
         port_color = "🟢" if total_pnl >= 0 else "🔴"
 
         if total_cost:
             lines.insert(2, f"  Portfolio PnL (total): {port_color} `{total_pnl:+.4f} τ`")
             lines.insert(3, f"  Portfolio ROI:        {port_color} `{port_roi:+.2f}%`\n")
 
-        # ── Info ───────────────────────────────────────────────────────────────
-        # UPDATED: ONLY THIS PORTFOLIO SUMMARY BLOCK WAS CHANGED
-        # ───────────────────────────────────────────────────────────────────────
-
         lines.append("─────────────────")
-        lines.append("*Interpretation*")
+        lines.append("Interpretation")
 
-        if total_cost:
-            capital_deployed = sum(
-                t.get("tao_spent", 0.0)
-                for t in history
-                if t.get("type") == "stake"
-            )
+        open_roi = unrealized / total_cost * 100 if total_cost else 0.0
+        realized_roi = realized / capital_deployed * 100 if capital_deployed else 0.0
 
-            open_roi = unrealized / total_cost * 100 if total_cost else 0.0
-            realized_roi = realized / capital_deployed * 100 if capital_deployed else 0.0
+        open_color = "🟢" if unrealized >= 0 else "🔴"
+        realized_color = "🟢" if realized >= 0 else "🔴"
 
-            open_color = "🟢" if unrealized >= 0 else "🔴"
-            realized_color = "🟢" if realized >= 0 else "🔴"
-
-            lines.append(
-                f"  Portfolio ROI: {port_color} `{port_roi:+.2f}%`\n"
-                f"    ↳ Lifetime return on deployed capital\n"
-            )
-
-            lines.append(
-                f"  Open ROI:      {open_color} `{open_roi:+.2f}%`\n"
-                f"    ↳ Performance of active stakes\n"
-            )
-
-            lines.append(
-                f"  Realized ROI:  {realized_color} `{realized_roi:+.2f}%`\n"
-                f"    ↳ Locked-in trading gains\n"
-            )
+        lines.append(f"  Portfolio ROI: {port_color} `{port_roi:+.2f}%`")
+        lines.append("    ↳ Lifetime return on deployed capital")
+        lines.append("")
+        lines.append(f"  Open ROI:      {open_color} `{open_roi:+.2f}%`")
+        lines.append("    ↳ Performance of active stakes")
+        lines.append("")
+        lines.append(f"  Realized ROI:  {realized_color} `{realized_roi:+.2f}%`")
+        lines.append("    ↳ Locked-in trading gains")
 
         return BotResponse("\n".join(lines))
 
