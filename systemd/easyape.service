@@ -6,17 +6,17 @@ After=network.target
 Type=simple
 User=root
 
-# ✅ IMPORTANT: Installer should replace this with actual repo path
-WorkingDirectory=__EASYAPE_ROOT__
+# ✅ MUST match your repo location
+WorkingDirectory=/root/TEASY-test
 
-ExecStart=__EASYAPE_ROOT__/.venv/bin/python \
+ExecStart=/root/TEASY-test/.venv/bin/python \
     -u -m stakechat_bot.main \
-    --config __EASYAPE_ROOT__/config.yaml
+    --config /root/TEASY-test/config.yaml
 
 Restart=always
 RestartSec=5
 
-# Cleaner shutdown behavior
+# Clean shutdown
 TimeoutStopSec=10
 KillSignal=SIGINT
 
