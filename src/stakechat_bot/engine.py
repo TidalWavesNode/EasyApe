@@ -300,7 +300,12 @@ class Engine:
         if action.op == "add":
             return await self._confirm_stake(action.amount, netuid, user_key)
         else:
-            is_all = (action.amount == 0 or str(action.amount).lower() == "all")
+            # UPDATED: treat None as "all" (parser may set amount=None for "unstake all")
+            is_all = (
+                action.amount is None
+                or action.amount == 0
+                or str(action.amount).lower() == "all"
+            )
             if is_all:
                 return await self._confirm_unstake_all(netuid, user_key)
             return await self._confirm_unstake(action.amount, netuid, user_key)
@@ -385,8 +390,10 @@ class Engine:
                 f"🧪 *DRY MODE*\n\nWould unstake `{amount:.4f} α` from Subnet `{netuid}`\n_(no transaction sent)_"
             )
 
+        # UPDATED: guard None before numeric compare (prevents None >= float crash)
         needs_confirm = (
             self.cfg.app.require_confirmation
+            and amount is not None
             and amount >= self.cfg.app.confirm_over_tao
         )
 
@@ -408,20 +415,64 @@ class Engine:
         return await self._unstake(amount, netuid)
 
     async def _confirm_unstake_all(self, netuid: int, user_key: str) -> BotResponse:
+        wallet = await self._get_wallet()
+
         if self.cfg.app.mode == "dry":
             return BotResponse(
                 f"🧪 *DRY MODE*\n\nWould unstake **ALL** alpha from Subnet `{netuid}`\n_(no transaction sent)_"
             )
 
+        alpha_amount = None
+        rate_now = None
+        est_tao = None
+
+        # How much alpha is currently staked on this netuid?
+        try:
+            bal = await self._btclient.get_balance(wallet)
+            for s in bal.stakes:
+                if s["netuid"] == netuid:
+                    alpha_amount = s["alpha"]
+                    break
+        except Exception:
+            pass
+
+        # Current τ/α rate for estimate
+        try:
+            rate_now = await self._btclient.get_exchange_rate(netuid)
+        except Exception:
+            pass
+
+        if alpha_amount is not None and rate_now:
+            est_tao = alpha_amount * rate_now
+
+        lines = [
+            f"🚨 *Confirm Unstake ALL*",
+            "",
+            f"  Subnet: `{netuid}`",
+        ]
+
+        if alpha_amount is not None:
+            lines.append(f"  Alpha:  `{alpha_amount:.6f} α`")
+
+        if rate_now is not None:
+            lines.append(f"  Rate:   `{rate_now:.6f} τ/α`")
+
+        if est_tao is not None:
+            lines.append(f"  Est τ:  `{est_tao:.6f} τ`")
+
+        if est_tao is not None:
+            lines.append("")
+            lines.append("ℹ️ Estimate only — final execution value may vary slightly due to slippage.")
+
+        lines.append("")
+        lines.append("This will remove **all** your alpha on this subnet.")
+        lines.append("")
+        lines.append("Press **Unstake ALL** to proceed.")
+
         action_str = f"unstake_all_confirm:{netuid}"
         self._pending.save(user_key, action_str, self.cfg.app.confirm_ttl_seconds)
         return BotResponse(
-            text=(
-                f"🚨 *Confirm Unstake ALL*\n\n"
-                f"  Subnet: `{netuid}`\n"
-                f"  This will remove **all** your alpha on this subnet.\n\n"
-                f"Press **Unstake ALL** to proceed."
-            ),
+            text="\n".join(lines),
             buttons=[[Button("🔥 Unstake ALL", f"unstake_all_confirm:{netuid}"),
                       Button("❌ Cancel", "cancel")]],
         )
