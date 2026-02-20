@@ -8,6 +8,42 @@ Designed for simplicity, safety, and beginner-friendly deployment.
 
 ---
 
+## 📑 Table of Contents
+
+- [🧠 What EasyApe Does](#-what-easyape-does)
+- [✨ What You Should Expect](#-what-you-should-expect)
+- [✅ System Requirements](#-system-requirements)
+- [🚀 Installation (Fresh VPS)](#-installation-fresh-vps)
+  - [1️⃣ Connect to your VPS](#1️⃣-connect-to-your-vps)
+  - [2️⃣ Clone EasyApe](#2️⃣-clone-easyape)
+  - [3️⃣ Run Installer](#3️⃣-run-installer)
+- [🤖 Telegram Setup](#-telegram-setup)
+  - [Step 1 – Create a Telegram Bot](#step-1--create-a-telegram-bot)
+  - [Step 2 – Copy Bot Token](#step-2--copy-bot-token)
+  - [Step 3 – Get Your Telegram User ID](#step-3--get-your-telegram-user-id)
+- [💬 Discord Setup (Not Tested)](#-discord-setup-not-tested)
+  - [Step 1 – Create Discord Application](#step-1--create-discord-application)
+  - [Step 2 – Add Bot](#step-2--add-bot)
+  - [Step 3 – Copy Bot Token](#step-3--copy-bot-token-1)
+  - [Step 4 – Invite Bot to Server](#step-4--invite-bot-to-server)
+  - [Step 5 – Get Your Discord User ID](#step-5--get-your-discord-user-id)
+- [⚙️ Default Configuration Explained](#️-default-configuration-explained)
+- [🔐 Wallet Setup](#-wallet-setup)
+- [🧪 Dry Mode (Safe Testing)](#-dry-mode-safe-testing)
+- [▶️ Managing EasyApe](#️-managing-easyape)
+- [💬 Commands Cheat Sheet](#-commands-cheat-sheet)
+- [📊 Portfolio & Performance Commands](#-portfolio--performance-commands)
+  - [🏦 balance](#-balance)
+  - [📈 pnl](#-pnl)
+  - [💹 roi](#-roi)
+  - [📜 history](#-history)
+- [⚠️ Safety Best Practices](#️-safety-best-practices)
+- [🔒 Security Notes](#-security-notes)
+- [⚠️ Disclaimer](#️-disclaimer)
+- [💚 Support EasyApe 💚](#-support-easyape-)
+
+---
+
 ## 🧠 What EasyApe Does
 
 EasyApe connects your Telegram or Discord account to your Bittensor wallet and:
