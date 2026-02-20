@@ -1,53 +1,73 @@
 #!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────────────────────
+# EasyApe Installer v2
+# Supports: fresh install | upgrade | repair
+# Uses Bittensor Python SDK (no btcli subprocess dependency)
+# ─────────────────────────────────────────────────────────────────────────────
 
 set -e
 
-ROOT_DIR="/root/EasyApe"
+# ✅ Dynamically resolve repo root (FIXES your error)
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV_DIR="${ROOT_DIR}/.venv"
 CONFIG_FILE="${ROOT_DIR}/config.yaml"
 SERVICE_FILE="/etc/systemd/system/easyape.service"
 
+CYAN="\033[0;36m"
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+NC="\033[0m"
+
+info()    { echo -e "${CYAN}➜${NC}  $1"; }
+success() { echo -e "${GREEN}✅${NC}  $1"; }
+warn()    { echo -e "${RED}⚠️${NC}   $1"; }
+
 echo
-echo "🦍 EasyApe Installer"
-echo "────────────────────────────────────────────"
+echo -e "${CYAN}🦍 EasyApe Installer${NC}"
+echo "──────────────────────────────────────────────────"
 
-# ─────────────────────────────────────────────
-# Ensure repo location
-# ─────────────────────────────────────────────
-mkdir -p "$ROOT_DIR"
-cd "$ROOT_DIR"
+# ───────────────────────────────────────────────────
+# Sanity check (NEW SAFETY)
+# ───────────────────────────────────────────────────
+if [[ ! -f "${ROOT_DIR}/requirements.txt" ]]; then
+    warn "requirements.txt not found in ${ROOT_DIR}"
+    exit 1
+fi
 
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
 # Python / venv setup
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
 echo
-echo "➜ Setting up Python virtual environment..."
+info "Setting up Python virtual environment..."
 
-python3 -m venv "$VENV_DIR"
+python3 -m venv "$VENV_DIR" || true
 "$VENV_DIR/bin/pip" install --upgrade pip
 "$VENV_DIR/bin/pip" install -r requirements.txt
 
-echo "✅ venv ready"
+success "venv ready"
 
-# ─────────────────────────────────────────────
-# Wallet configuration
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
+# Wallet setup
+# ───────────────────────────────────────────────────
 echo
-read -r -p "Wallet name [EasyApe]: " WALLET_NAME
 WALLET_NAME="${WALLET_NAME:-EasyApe}"
 
-read -r -p "Wallet path [/root/.bittensor/wallets]: " WALLET_PATH
-WALLET_PATH="${WALLET_PATH:-/root/.bittensor/wallets}"
+read -r -p "Wallet name [${WALLET_NAME}]: " wn || true
+WALLET_NAME="${wn:-${WALLET_NAME}}"
+
+WALLET_PATH="/root/.bittensor/wallets"
+read -r -p "Wallet path [${WALLET_PATH}]: " wp || true
+WALLET_PATH="${wp:-${WALLET_PATH}}"
 
 echo
-read -r -p "Create a new passwordless coldkey now? [Y/n]: " CREATE_WALLET
-CREATE_WALLET="${CREATE_WALLET:-Y}"
+read -r -p "Create a new passwordless coldkey now? [Y/n]: " ans || true
+ans="${ans:-Y}"
 
-if [[ "$CREATE_WALLET" =~ ^[Yy]$ ]]; then
+if [[ "$ans" =~ ^[Yy]$ ]]; then
     echo
-    echo "➜ Creating coldkey '${WALLET_NAME}'..."
+    info "Creating coldkey '${WALLET_NAME}'…"
 
-    "$VENV_DIR/bin/python" <<PY
+    "${VENV_DIR}/bin/python" <<PY
 import bittensor as bt
 
 wallet = bt.Wallet(name="${WALLET_NAME}", path="${WALLET_PATH}")
@@ -72,48 +92,48 @@ print()
 PY
 
     echo
-    read -p "Press ENTER once you have safely stored your mnemonic..."
+    read -r -p "Press ENTER once you have safely stored your mnemonic phrase..."
 fi
 
-# ─────────────────────────────────────────────
-# Telegram configuration
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
+# Telegram setup
+# ───────────────────────────────────────────────────
 echo
-read -r -p "Enable Telegram bot? [Y/n]: " ENABLE_TELEGRAM
-ENABLE_TELEGRAM="${ENABLE_TELEGRAM:-Y}"
+ENABLE_TELEGRAM="true"
+read -r -p "Enable Telegram bot? [Y/n]: " tg || true
+[[ "$tg" =~ ^[Nn]$ ]] && ENABLE_TELEGRAM="false"
 
 TELEGRAM_TOKEN=""
-TELEGRAM_IDS="    []"
+TELEGRAM_USER_IDS_BLOCK="    []"
 
-if [[ "$ENABLE_TELEGRAM" =~ ^[Yy]$ ]]; then
+if [[ "$ENABLE_TELEGRAM" == "true" ]]; then
     read -r -p "Telegram Bot Token: " TELEGRAM_TOKEN
-
     read -r -p "Your Telegram User ID: " TG_ID
-    TELEGRAM_IDS="    - ${TG_ID}"
+    TELEGRAM_USER_IDS_BLOCK="    - ${TG_ID}"
 fi
 
-# ─────────────────────────────────────────────
-# Discord configuration (optional)
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
+# Discord setup (optional)
+# ───────────────────────────────────────────────────
 echo
-read -r -p "Enable Discord bot? [y/N]: " ENABLE_DISCORD
-ENABLE_DISCORD="${ENABLE_DISCORD:-N}"
+ENABLE_DISCORD="false"
+read -r -p "Enable Discord bot? [y/N]: " dc || true
+[[ "$dc" =~ ^[Yy]$ ]] && ENABLE_DISCORD="true"
 
 DISCORD_TOKEN=""
-DISCORD_IDS="    []"
+DISCORD_USER_IDS_BLOCK="    []"
 
-if [[ "$ENABLE_DISCORD" =~ ^[Yy]$ ]]; then
+if [[ "$ENABLE_DISCORD" == "true" ]]; then
     read -r -p "Discord Bot Token: " DISCORD_TOKEN
-
     read -r -p "Your Discord User ID: " DC_ID
-    DISCORD_IDS="    - ${DC_ID}"
+    DISCORD_USER_IDS_BLOCK="    - ${DC_ID}"
 fi
 
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
 # Write config.yaml
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
 echo
-echo "➜ Writing config.yaml..."
+info "Writing config.yaml…"
 
 cat > "$CONFIG_FILE" <<YAML
 app:
@@ -132,9 +152,9 @@ discord:
 
 auth:
   telegram_user_ids:
-${TELEGRAM_IDS}
+${TELEGRAM_USER_IDS_BLOCK}
   discord_user_ids:
-${DISCORD_IDS}
+${DISCORD_USER_IDS_BLOCK}
 
 btcli:
   path: btcli
@@ -150,31 +170,31 @@ btcli:
       validator_all: tao.bot
 YAML
 
-echo "✅ config.yaml written"
+success "config.yaml written"
 
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
 # Install systemd service
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
 echo
-echo "➜ Installing systemd service..."
+info "Installing systemd service…"
 
 cp systemd/easyape.service "$SERVICE_FILE"
 
 systemctl daemon-reload
 systemctl enable easyape
 
-echo "✅ systemd service installed"
+success "systemd service installed"
 
-# ─────────────────────────────────────────────
-# Final start
-# ─────────────────────────────────────────────
+# ───────────────────────────────────────────────────
+# Start EasyApe
+# ───────────────────────────────────────────────────
 echo
-echo "➜ Starting EasyApe..."
+info "Starting EasyApe…"
 
 systemctl restart easyape
 
 echo
-echo "🎉 EasyApe installation complete!"
-echo "Check logs:"
+success "Installation complete!"
+echo "View logs:"
 echo "journalctl -u easyape -f"
 echo
