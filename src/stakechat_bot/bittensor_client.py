@@ -127,11 +127,14 @@ class BittensorClient:
             )
             stakes = []
 
-            # ✅ UPDATED: live subnet pricing instead of stake.tao
             price_cache = {}
 
             for s in raw:
                 alpha = float(s.stake)
+
+                # ✅ NEW: skip empty stakes
+                if alpha <= 0:
+                    continue
 
                 if s.netuid not in price_cache:
                     try:
@@ -158,10 +161,6 @@ class BittensorClient:
         except Exception:
             logger.exception("get_balance failed")
             return BalanceResult(free_tao=0.0)
-
-    # ─────────────────────────────────────────────
-    # Stake
-    # ─────────────────────────────────────────────
 
     async def add_stake(
         self,
@@ -226,10 +225,6 @@ class BittensorClient:
             hotkey=hotkey_ss58,
             rate=rate,
         )
-
-    # ─────────────────────────────────────────────
-    # Unstake
-    # ─────────────────────────────────────────────
 
     async def remove_stake(
         self,
@@ -296,8 +291,6 @@ class BittensorClient:
             hotkey=hotkey_ss58,
             rate=rate,
         )
-
-    # ─────────────────────────────────────────────
 
     async def _alpha_on_netuid(self, sub, coldkey_ss58, netuid):
         try:
