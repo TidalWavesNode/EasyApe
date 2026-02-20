@@ -17,7 +17,7 @@ EasyApe connects your Telegram or Discord account to your Bittensor wallet and:
 ✔ Tracks portfolio performance  
 ✔ Calculates PnL & ROI  
 ✔ Stores transaction history  
-✔ Executes btcli safely  
+✔ Utilizes Bittensor SDK  
 
 ---
 
@@ -83,8 +83,7 @@ chmod +x scripts/install_easyape.sh
 Installer will automatically:
 
 ✔ Create isolated Python environment (.venv)  
-✔ Install dependencies  
-✔ Verify btcli works  
+✔ Install dependencies    
 ✔ Prompt for bot tokens  
 ✔ Configure wallet & defaults  
 ✔ Install systemd service  
@@ -138,7 +137,7 @@ Id: 123456789
 
 ---
 
-## 💬 Discord Setup
+## 💬 Discord Setup (Not Tested)
 
 ### Step 1 – Create Discord Application
 
@@ -223,7 +222,7 @@ Create a NEW wallet now?
 
 If YES:
 
-✔ Runs btcli wallet creation  
+✔ Runs wallet creation  
 ✔ Displays recovery phrase  
 ✔ Pauses for confirmation  
 
@@ -376,10 +375,11 @@ Useful for auditing and tracking activity.
 EasyApe:
 
 ✔ Does NOT store private keys  
-✔ Uses btcli for signing  
+✔ Uses SDK for signing  
 ✔ Does NOT bypass wallet security  
+✔ Can NOT transfer funds out
 
-Wallet safety remains handled by btcli / Bittensor.
+Wallet safety remains handled by btcli / Bittensor SDK.
 
 ---
 
